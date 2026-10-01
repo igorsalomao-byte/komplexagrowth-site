@@ -9,7 +9,7 @@ Pastas e arquivos que começam com "_" não são publicados pelo GitHub Pages.
 - STAGING = False -> versão de produção em komplexagrowth.com (index, CNAME, sitemap aberto).
 - CASES: preencher com números reais. Campo com None aparece marcado como "a preencher".
 """
-import io, os, json, html
+import io, os, re, json, html
 
 STAGING = True
 SITE = 'https://komplexagrowth.com'
@@ -28,15 +28,14 @@ HOJE = '2026-10-01'
 # Cases Growth. Troque cada None pelo dado real (texto curto). Exemplo:
 #   'segmento': 'Clínica de saúde', 'numero': '3,2x', 'resultado': 'em agendamentos vindos de anúncio', 'periodo': '4 meses de projeto'
 CASES = [
-    {'nome': 'Daga Agrinavi', 'segmento': 'Tecnologia de precisão agrícola', 'numero': '6,5x',
-     'resultado': 'no faturamento atribuído ao tráfego pago: de R$ 20.347 para R$ 131.553.', 'periodo': 'Em 12 meses'},
-    {'nome': 'Preservar Portas', 'segmento': 'Setor de portas', 'numero': 'R$ 1 mi+',
-     'resultado': 'em vendas atribuídas ao marketing.', 'periodo': ''},
-    {'nome': 'Clínica Vasconcelos', 'segmento': 'Saúde', 'numero': 'Melhor mês',
-     'resultado': 'de faturamento em 13 anos de história, depois de sair do pior mês da clínica, com marketing e comercial estruturados.',
-     'periodo': 'Após 4 meses de implementação'},
-    {'nome': 'Colégio Pleno Saber', 'segmento': 'Escola bilíngue', 'numero': '3 → 21',
-     'resultado': 'alunos, com R$ 5.647 investidos em marketing e LTV estimado de R$ 308.832.', 'periodo': 'Em 9 meses'},
+    {'nome': 'Preservar Portas', 'segmento': 'Setor de portas',
+     'resumo': 'mais de R$ 1 milhão em vendas atribuídas ao marketing.'},
+    {'nome': 'Daga Agrinavi', 'segmento': 'Agro, tecnologia de precisão agrícola',
+     'resumo': 'faturamento atribuído ao tráfego pago de R$ 20.347 para R$ 131.553 em 12 meses (6,5x).'},
+    {'nome': 'Colégio Pleno Saber', 'segmento': 'Educação, escola bilíngue',
+     'resumo': 'de 3 para 21 alunos em 9 meses, com R$ 5.647 investidos em marketing e LTV estimado de R$ 308.832 em 12 meses.'},
+    {'nome': 'Clínica Vasconcelos', 'segmento': 'Saúde',
+     'resumo': 'saiu do pior mês de faturamento da história para o melhor mês em 13 anos, após 4 meses de marketing e comercial estruturados.'},
 ]
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -125,7 +124,7 @@ def head(title, desc, canonical, extra=''):
 
 def header(home=True):
     p = '' if home else 'index.html'
-    links = [('#metodo', 'Método'), ('#servicos', 'Serviços'), ('#cases', 'Cases'), ('#hotelaria', 'Hotelaria'), ('#duvidas', 'Dúvidas')]
+    links = [('#metodo', 'Método'), ('#cases', 'Cases'), ('#servicos', 'Serviços'), ('#hotelaria', 'Hotelaria'), ('#duvidas', 'Dúvidas')]
     nav = ''.join(f'<a href="{p}{h}">{t}</a>' for h, t in links)
     return f'''<header class="hdr">
   <div class="wrap">
@@ -153,7 +152,7 @@ def footer(home=True):
       </div>
       <div class="ft-col">
         <h4>Navegação</h4>
-        <a href="{p}#metodo">Método</a><a href="{p}#servicos">Serviços</a><a href="{p}#cases">Cases</a><a href="{p}#duvidas">Dúvidas</a>
+        <a href="{p}#metodo">Método</a><a href="{p}#cases">Cases</a><a href="{p}#servicos">Serviços</a><a href="{p}#duvidas">Dúvidas</a>
         <a href="{HOTEIS}" target="_blank" rel="noopener">Komplexa Hotéis</a>
       </div>
       <div class="ft-col">
@@ -216,6 +215,16 @@ FAQ = [
      'ar, você passa a ver de onde vem cada contato e cada venda, e as decisões de verba deixam de ser no escuro.'),
 ]
 
+def cnt(txt):
+    """Número que conta ao aparecer na tela. O HTML já sai com o valor final (sem JS, aparece certo)."""
+    m = re.match(r'^(\d+)(?:,(\d+))?(.*)$', txt)
+    if not m:
+        return E(txt)
+    inteiro, dec, suf = m.groups()
+    valor = inteiro + ('.' + dec if dec else '')
+    return (f'<span class="cnt" data-to="{valor}" data-dec="{len(dec) if dec else 0}" data-suf="{A(suf)}">{E(txt)}</span>')
+
+
 HOT = [('19x', 'Bahia Bonita', 'hotel boutique', 'de retorno sobre o investimento em mídia'),
        ('7x+', 'Lagamar', 'resort e hotel', 'de retorno sobre o investimento em mídia paga'),
        ('6,5x', 'Pousada Karandá', '', 'de retorno sobre o investimento em mídia paga'),
@@ -254,16 +263,82 @@ def home():
     pipe = ''.join(f'<li class="st{w}"><span class="ic">{ico(i)}</span><div><b>{t}</b>{s}</div>'
                    f'<span class="tag{" ok" if w else ""}">{tg}</span></li>' for i, t, s, tg, w in passos_pipe)
 
-    cases_html = ''.join(f'''
-      <article class="case" data-rv="{n % 2 + 1}">
-        <div class="case-top"><span class="case-nome">{E(c['nome'])}</span><span class="case-seg">{ph(c['segmento'], 'segmento')}</span></div>
-        <span class="case-num{'' if c['numero'] else ' ph'}">{E(c['numero']) if c['numero'] else '[resultado]'}</span>
-        <p>{ph(c['resultado'], 'o que mudou, em uma frase')}</p>
-        {'' if c['periodo'] == '' else '<span class="per">' + ph(c['periodo'], 'período') + '</span>'}
-      </article>''' for n, c in enumerate(CASES))
-
+    seats = ''.join(f'<i class="seat {"base" if k < 3 else "novo"}" style="--i:{max(0, k - 3)}"></i>' for k in range(21))
+    prova = f'''  <div class="wrap prova-wrap" aria-label="Resultados de clientes">
+    <div class="prova-grid" data-rv>
+      <a class="pv" href="#case-preservar"><b>R$ 1 mi+</b><span>em vendas atribuídas ao marketing</span><em>Preservar Portas</em></a>
+      <a class="pv" href="#case-daga"><b><span class="cnt" data-to="6.5" data-dec="1" data-suf="x">6,5x</span></b><span>no faturamento via tráfego pago, em 12 meses</span><em>Daga Agrinavi</em></a>
+      <a class="pv" href="#case-pleno"><b>3 → <span class="cnt" data-from="3" data-to="21">21</span></b><span>alunos em 9 meses</span><em>Colégio Pleno Saber</em></a>
+      <a class="pv" href="#case-vasconcelos"><b>Recorde</b><span>melhor mês de faturamento em 13 anos</span><em>Clínica Vasconcelos</em></a>
+    </div>
+  </div>
+'''
+    cases_sec = f'''
+<section class="dark grid-bg" id="cases">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-rv>Cases</span>
+      <h2 data-rv="2">Resultado medido onde importa: <em>na venda.</em></h2>
+      <p class="lead" data-rv="3">Quatro empresas de serviços, quatro pontos de partida diferentes. Em comum: marketing e comercial trabalhando juntos, com o resultado acompanhado até a venda.</p>
+    </div>
+    <div class="bento">
+      <article class="cs cs-pp" id="case-preservar" data-rv="1">
+        <header class="cs-h"><span class="cs-chip">Setor de portas</span><h3>Preservar Portas</h3></header>
+        <div><div class="cs-big"><span class="cnt" data-to="1000000" data-pre="R$ " data-suf="+">R$ 1.000.000+</span></div>
+          <p class="cs-lbl">em vendas atribuídas ao marketing</p></div>
+        <div class="meter-w"><div class="meter"><i></i></div><div class="meter-l"><span>R$ 0</span><span>R$ 1 milhão</span></div></div>
+        <footer class="cs-f"><span>Marketing</span><span>Vendas atribuídas</span></footer>
+      </article>
+      <article class="cs cs-dg" id="case-daga" data-rv="2">
+        <header class="cs-h"><span class="cs-chip">Agro · tecnologia de precisão agrícola</span><h3>Daga Agrinavi</h3></header>
+        <div class="cs-row">
+          <div>
+            <div class="cs-big"><span class="cnt" data-to="6.5" data-dec="1" data-suf="x">6,5x</span></div>
+            <p class="cs-lbl">no faturamento atribuído ao tráfego pago</p>
+            <p class="cs-t">Com inteligência de marketing aplicada ao tráfego pago, a empresa multiplicou o faturamento que vem dos anúncios.</p>
+          </div>
+          <div class="bars" role="img" aria-label="Faturamento atribuído ao tráfego pago: de R$ 20.347 para R$ 131.553 em 12 meses">
+            <div class="bar" style="--h:15.5%"><span class="v">R$ 20.347</span><i></i><span class="l">Antes</span></div>
+            <div class="bar dep" style="--h:100%"><span class="v">R$ 131.553</span><i></i><span class="l">12 meses depois</span></div>
+          </div>
+        </div>
+        <footer class="cs-f"><span>Tráfego pago</span><span>12 meses</span></footer>
+      </article>
+      <article class="cs cs-ps" id="case-pleno" data-rv="1">
+        <header class="cs-h"><span class="cs-chip">Educação · escola bilíngue</span><h3>Colégio Pleno Saber</h3></header>
+        <div class="cs-row">
+          <div>
+            <div class="cs-big">3 → <span class="cnt" data-from="3" data-to="21">21</span></div>
+            <p class="cs-lbl">alunos em 9 meses</p>
+            <div class="duo">
+              <div><b><span class="cnt" data-to="5647" data-pre="R$ ">R$ 5.647</span></b><span>investidos em marketing</span></div>
+              <div><b><span class="cnt" data-to="308832" data-pre="R$ ">R$ 308.832</span></b><span>de LTV estimado em 12 meses</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="seats" role="img" aria-label="3 alunos no início e 18 novos, 21 no total">{seats}</div>
+            <div class="seats-leg"><span><i class="lg-base"></i>No início</span><span><i class="lg-novo"></i>Novos alunos</span></div>
+          </div>
+        </div>
+        <p class="cs-t">Escola bilíngue com uma proposta de ensino que desestimula o uso de telas.</p>
+        <footer class="cs-f"><span>Marketing</span><span>9 meses</span></footer>
+      </article>
+      <article class="cs cs-cv" id="case-vasconcelos" data-rv="2">
+        <header class="cs-h"><span class="cs-chip">Saúde</span><h3>Clínica Vasconcelos</h3></header>
+        <div><div class="cs-big">Recorde</div><p class="cs-lbl">o melhor mês de faturamento em 13 anos de clínica</p></div>
+        <div class="tl">
+          <div class="tl-n"><small>Antes</small><b>Pior mês de faturamento da história</b></div>
+          <div class="tl-n fim"><small>4 meses depois</small><b>Melhor mês em 13 anos</b></div>
+        </div>
+        <p class="cs-t">Uma clínica de referência que vinha sem marketing e comercial estruturados.</p>
+        <footer class="cs-f"><span>Marketing e comercial</span><span>4 meses</span></footer>
+      </article>
+    </div>
+  </div>
+</section>
+'''
     hot_html = ''.join(
-        f'<div class="hs{" full" if i == 4 else ""}" data-rv="{i % 3 + 1}"><b>{n}</b><span><strong>{E(q)}</strong>{(" (" + t + ")") if t else ""}: {E(d)}.</span></div>'
+        f'<div class="hs{" full" if i == 4 else ""}" data-rv="{i % 3 + 1}"><b>{cnt(n)}</b><span><strong>{E(q)}</strong>{(" (" + t + ")") if t else ""}: {E(d)}.</span></div>'
         for i, (n, q, t, d) in enumerate(HOT))
     faq_html = ''.join(f'<details><summary>{E(q)}</summary><p>{E(a)}</p></details>' for q, a in FAQ)
 
@@ -286,7 +361,7 @@ def home():
       <ol class="steps">{pipe}</ol>
     </div>
   </div>
-</section>
+{prova}</section>
 
 <section class="soft" id="problema">
   <div class="wrap">
@@ -321,7 +396,7 @@ def home():
     </div>
   </div>
 </section>
-
+{cases_sec}
 <section id="servicos">
   <div class="wrap">
     <div class="sec-head">
@@ -348,16 +423,6 @@ def home():
   </div>
 </section>
 
-<section class="dark grid-bg" id="cases">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow" data-rv>Cases</span>
-      <h2 data-rv="2">Resultados de <em>empresas de serviços.</em></h2>
-    </div>
-    <div class="cases">{cases_html}
-    </div>
-  </div>
-</section>
 
 <section class="soft" id="hotelaria">
   <div class="wrap">
@@ -543,8 +608,7 @@ N404 = f'''<p>O endereço que você abriu não existe ou mudou de lugar.</p>
 
 
 def llms():
-    cases = '\n'.join(f"- {c['nome']}" + (f" ({c['segmento']}): {c['numero']} {c['resultado']}" if c['numero'] and c['resultado'] else '')
-                      for c in CASES)
+    cases = '\n'.join(f"- {c['nome']} ({c['segmento']}): {c['resumo']}" for c in CASES)
     return f'''# Komplexa Growth
 
 > Empresa de marketing e comercial para empresas de serviços no Brasil. Estrutura o marketing e o comercial do cliente, do anúncio à venda fechada: traz o cliente certo, qualifica cada contato, prepara o time para fechar e mede o resultado na venda, não no clique. Sede em São José dos Campos, SP (CNPJ {CNPJ}).
@@ -611,5 +675,5 @@ if __name__ == '__main__':
             os.remove(cname)
     else:
         escreve('CNAME', 'komplexagrowth.com\n')
-    faltam = sum(1 for c in CASES for k in ('segmento', 'numero', 'resultado', 'periodo') if c[k] is None)
+    faltam = 0
     print('site gerado |', 'STAGING (noindex)' if STAGING else 'PRODUÇÃO', '| campos de case a preencher:', faltam)
