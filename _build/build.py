@@ -332,7 +332,7 @@ def home():
       <div class="passo" data-rv="4"><span class="num">04</span><h3>Medição na venda</h3><p>Cada venda é ligada à origem. Todo mês você vê quantas vendas e quanto de receita cada canal trouxe, e a verba vai para o que vende.</p></div>
     </div>
     <div class="metodo-nota" data-rv>
-      <p><b>Projeto com escopo, prazo e metas definidos na proposta.</b> Um time só responde pelo marketing e pelo comercial, sem jogo de empurra entre agência e vendas.</p>
+      <p><b>Projeto com escopo e prazo definidos na proposta.</b> Um time só responde pelo marketing e pelo comercial, sem jogo de empurra entre agência e vendas.</p>
       <a class="btn btn-primary" href="{cta('metodo')}" target="_blank" rel="noopener">Solicitar diagnóstico {SETA}</a>
     </div>
   </div>
