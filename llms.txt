@@ -31,11 +31,8 @@ Empresas de serviços em que a venda passa por uma conversa: clínicas e consult
 
 ## Clientes
 
-- Daga Agrinavi
-- Preservar Portas
-- Clínica Vasconcelos
-- Pleno Saber
+- Daga Agrinavi (Tecnologia de precisão agrícola): 6,5x no faturamento atribuído ao tráfego pago: de R$ 20.347 para R$ 131.553.
+- Preservar Portas (Setor de portas): R$ 1 mi+ em vendas atribuídas ao marketing.
+- Clínica Vasconcelos (Saúde): Melhor mês de faturamento em 13 anos de história, depois de sair do pior mês da clínica, com marketing e comercial estruturados.
+- Colégio Pleno Saber (Escola bilíngue): 3 → 21 alunos, com R$ 5.647 investidos em marketing e LTV estimado de R$ 308.832.
 
-## Certificações
-
-Google Partner, HubSpot Certified, Salesforce Partner.

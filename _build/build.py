@@ -28,10 +28,15 @@ HOJE = '2026-10-01'
 # Cases Growth. Troque cada None pelo dado real (texto curto). Exemplo:
 #   'segmento': 'Clínica de saúde', 'numero': '3,2x', 'resultado': 'em agendamentos vindos de anúncio', 'periodo': '4 meses de projeto'
 CASES = [
-    {'nome': 'Daga Agrinavi', 'segmento': None, 'numero': None, 'resultado': None, 'periodo': None},
-    {'nome': 'Preservar Portas', 'segmento': None, 'numero': None, 'resultado': None, 'periodo': None},
-    {'nome': 'Clínica Vasconcelos', 'segmento': None, 'numero': None, 'resultado': None, 'periodo': None},
-    {'nome': 'Pleno Saber', 'segmento': None, 'numero': None, 'resultado': None, 'periodo': None},
+    {'nome': 'Daga Agrinavi', 'segmento': 'Tecnologia de precisão agrícola', 'numero': '6,5x',
+     'resultado': 'no faturamento atribuído ao tráfego pago: de R$ 20.347 para R$ 131.553.', 'periodo': 'Em 12 meses'},
+    {'nome': 'Preservar Portas', 'segmento': 'Setor de portas', 'numero': 'R$ 1 mi+',
+     'resultado': 'em vendas atribuídas ao marketing.', 'periodo': ''},
+    {'nome': 'Clínica Vasconcelos', 'segmento': 'Saúde', 'numero': 'Melhor mês',
+     'resultado': 'de faturamento em 13 anos de história, depois de sair do pior mês da clínica, com marketing e comercial estruturados.',
+     'periodo': 'Após 4 meses de implementação'},
+    {'nome': 'Colégio Pleno Saber', 'segmento': 'Escola bilíngue', 'numero': '3 → 21',
+     'resultado': 'alunos, com R$ 5.647 investidos em marketing e LTV estimado de R$ 308.832.', 'periodo': 'Em 9 meses'},
 ]
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -217,21 +222,6 @@ HOT = [('19x', 'Bahia Bonita', 'hotel boutique', 'de retorno sobre o investiment
        ('3,4x', 'Pousada Solar Dona Dora', '', 'de faturamento na baixa temporada'),
        ('60%+', 'Hotel Sunsmart', '', 'das reservas agora são diretas; antes eram 30%')]
 
-DEPO = [
-    ('MS', 'Maria Eduarda Silva Macedo', 'Gestora, hotel boutique',
-     'Não poderia deixar de registrar minha experiência com a Komplexa Growth. Foi um divisor de águas para nossa ocupação. '
-     'Entraram reorganizando nosso funil de reservas do zero, integrando marketing e atendimento de forma cirúrgica. Em menos de 3 '
-     'meses já tínhamos dobrado o volume de reservas diretas.'),
-    ('FL', 'Fernando Lima', 'Proprietário, pousada',
-     'Contratar a Komplexa Growth Marketing foi, sem dúvida, uma das melhores decisões que já tomei para minha pousada. Desde o '
-     'primeiro contato, a equipe foi extremamente atenciosa, profissional e comprometida com os resultados. Eles entenderam '
-     'exatamente o que eu precisava e entregaram muito mais do que eu esperava.'),
-    ('AB', 'Alysson Barbarossi', 'Diretor, hotel',
-     'Excelência em tudo. A Komplexa Growth além de ótimo atendimento, tem estratégias que várias agências experientes não tem, o '
-     'feeling para hotelaria é baseado em tecnologia e conhecimento real do setor, são completos.'),
-]
-
-
 def home():
     title = 'Komplexa Growth | Marketing e comercial para empresas de serviços'
     desc = ('A Komplexa Growth estrutura o marketing e o comercial de empresas de serviços: traz o cliente certo, qualifica o '
@@ -269,17 +259,12 @@ def home():
         <div class="case-top"><span class="case-nome">{E(c['nome'])}</span><span class="case-seg">{ph(c['segmento'], 'segmento')}</span></div>
         <span class="case-num{'' if c['numero'] else ' ph'}">{E(c['numero']) if c['numero'] else '[resultado]'}</span>
         <p>{ph(c['resultado'], 'o que mudou, em uma frase')}</p>
-        <span class="per">{ph(c['periodo'], 'período')}</span>
+        {'' if c['periodo'] == '' else '<span class="per">' + ph(c['periodo'], 'período') + '</span>'}
       </article>''' for n, c in enumerate(CASES))
 
     hot_html = ''.join(
         f'<div class="hs{" full" if i == 4 else ""}" data-rv="{i % 3 + 1}"><b>{n}</b><span><strong>{E(q)}</strong>{(" (" + t + ")") if t else ""}: {E(d)}.</span></div>'
         for i, (n, q, t, d) in enumerate(HOT))
-    depo_html = ''.join(f'''
-      <figure class="dp" data-rv="{i + 1}">
-        <blockquote>{E(t)}</blockquote>
-        <figcaption><i>{ini}</i><span><b>{E(n)}</b><small>{E(c)}</small></span></figcaption>
-      </figure>''' for i, (ini, n, c, t) in enumerate(DEPO))
     faq_html = ''.join(f'<details><summary>{E(q)}</summary><p>{E(a)}</p></details>' for q, a in FAQ)
 
     body = f'''{header()}
@@ -295,7 +280,6 @@ def home():
         <a class="btn btn-primary" href="{cta('hero')}" target="_blank" rel="noopener">Solicitar diagnóstico {SETA}</a>
         <a class="btn btn-ghost" href="#metodo">Ver como funciona</a>
       </div>
-      <div class="certs" data-rv="4"><span class="lbl">Certificações</span><span class="cert"><i></i>Google Partner</span><span class="cert"><i></i>HubSpot Certified</span><span class="cert"><i></i>Salesforce Partner</span></div>
     </div>
     <div class="pipe" data-rv="3" aria-label="Exemplo do caminho de um cliente, do anúncio à venda">
       <div class="pipe-top"><b>Da origem à venda</b><span>rastreado</span></div>
@@ -385,8 +369,6 @@ def home():
         <a class="btn btn-line" href="{HOTEIS}" target="_blank" rel="noopener" data-rv="4">Conhecer a Komplexa Hotéis {SETA}</a>
       </div>
       <div class="hot-stats">{hot_html}</div>
-    </div>
-    <div class="depo">{depo_html}
     </div>
   </div>
 </section>
@@ -598,9 +580,6 @@ Empresas de serviços em que a venda passa por uma conversa: clínicas e consult
 
 {cases}
 
-## Certificações
-
-Google Partner, HubSpot Certified, Salesforce Partner.
 '''
 
 
@@ -632,5 +611,5 @@ if __name__ == '__main__':
             os.remove(cname)
     else:
         escreve('CNAME', 'komplexagrowth.com\n')
-    faltam = sum(1 for c in CASES for k in ('segmento', 'numero', 'resultado', 'periodo') if not c[k])
+    faltam = sum(1 for c in CASES for k in ('segmento', 'numero', 'resultado', 'periodo') if c[k] is None)
     print('site gerado |', 'STAGING (noindex)' if STAGING else 'PRODUÇÃO', '| campos de case a preencher:', faltam)
