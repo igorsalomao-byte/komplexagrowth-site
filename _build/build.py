@@ -11,7 +11,7 @@ Pastas e arquivos que começam com "_" não são publicados pelo GitHub Pages.
 """
 import io, os, re, json, html
 
-STAGING = True
+STAGING = False
 SITE = 'https://komplexagrowth.com'
 FORM = 'https://komplexa-pricing.vercel.app/f/komplexagrowth'
 WHATS = '5512987084407'
@@ -23,7 +23,7 @@ FACE = 'https://www.facebook.com/komplexagrowth'
 HOTEIS = 'https://komplexahoteis.com/'
 CNPJ = '63.097.480/0001-70'
 ENDERECO = 'Rua dos Piquiroes, 40, Sala 312, Parque Residencial Aquarius, São José dos Campos, SP, CEP 12.246-020'
-HOJE = '2026-10-01'
+HOJE = '2026-10-08'
 
 # Cases Growth. Troque cada None pelo dado real (texto curto). Exemplo:
 #   'segmento': 'Clínica de saúde', 'numero': '3,2x', 'resultado': 'em agendamentos vindos de anúncio', 'periodo': '4 meses de projeto'
