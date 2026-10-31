@@ -192,7 +192,7 @@ $("fm").addEventListener("submit",function(ev){
   else if(CONFIG.ENDPOINT){
     /* n8n: formulário simples (sem preflight). Só confirma o cadastro quando o n8n responde que gravou. */
     var body=new URLSearchParams();Object.keys(dados).forEach(function(k){body.append(k,String(dados[k]));});
-    fetch(CONFIG.ENDPOINT,{method:"POST",body:body}).then(function(x){if(!x.ok)throw new Error("http "+x.status);ok({ok:true});}).catch(function(){ok({ok:false,erro:"Não deu para salvar seu cadastro agora. Tente de novo em instantes ou chame alguém no stand da Sorrirê."});});
+    fetch(CONFIG.ENDPOINT,{method:"POST",body:body}).then(function(x){if(!x.ok)throw new Error("http "+x.status);return x.text();}).then(function(txt){var r=null;try{r=JSON.parse(txt);}catch(e){}if(!r||r.ok!==true)throw new Error("sem confirmação");ok({ok:true});}).catch(function(){ok({ok:false,erro:"Não deu para salvar seu cadastro agora. Tente de novo em instantes ou chame alguém no stand da Sorrirê."});});
   }
   else{setTimeout(function(){ok({ok:true,numero:"0",preview:true});},600);}
 });
