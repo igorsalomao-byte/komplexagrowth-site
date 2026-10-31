@@ -91,7 +91,6 @@ footer img{width:40px;height:40px;margin:0 auto;}
     <div class="f"><label for="nome">Nome completo</label><input id="nome" name="nome" autocomplete="name" placeholder="Seu nome e sobrenome" required><span class="msg" id="nome-m"></span></div>
     <div class="f"><label for="email">E-mail</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" required><span class="msg" id="email-m"></span></div>
     <div class="f"><label for="whatsapp">WhatsApp</label><input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(12) 99999-9999" required><span class="msg" id="whatsapp-m"></span></div>
-    <div class="f"><label for="instagram">Seu Instagram <span style="text-transform:none;letter-spacing:0">(opcional)</span></label><input id="instagram" name="instagram" autocomplete="off" placeholder="@seuperfil"></div>
     <label class="ck" id="segue-l"><input type="checkbox" id="segue"><span>Sigo <b>@sorrire.odonto</b> e <b>@copa.batata</b> no Instagram</span></label>
     <div class="follow"><a href="https://www.instagram.com/sorrire.odonto/" target="_blank" rel="noopener">Seguir @sorrire.odonto</a><a href="https://www.instagram.com/copa.batata/" target="_blank" rel="noopener">Seguir @copa.batata</a></div>
     <label class="ck" id="lgpd-l"><input type="checkbox" id="lgpd"><span>Autorizo o uso dos meus dados pela Copa Batata e pela Sorrirê para este sorteio, conforme a LGPD.</span></label>
@@ -187,8 +186,7 @@ $("fm").addEventListener("submit",function(ev){
   ev.preventDefault();
   if($("site").value)return; /* robô */
   if(!validar())return;
-  var dados={nome:$("nome").value.trim(),email:$("email").value.trim().toLowerCase(),whatsapp:$("whatsapp").value.replace(/\D/g,""),
-    instagram:$("instagram").value.trim().replace(/^@?/,"@").replace(/^@$/,""),segue:$("segue").checked,lgpd:$("lgpd").checked,contato:$("contato").checked,origem:origem};
+  var dados={nome:$("nome").value.trim(),email:$("email").value.trim().toLowerCase(),whatsapp:$("whatsapp").value.replace(/\D/g,""),segue:$("segue").checked,lgpd:$("lgpd").checked,contato:$("contato").checked,origem:origem};
   $("go").disabled=true;$("go").textContent="Enviando…";
   if(GS){GS.run.withSuccessHandler(ok).withFailureHandler(falha).salvar(dados);}
   else if(CONFIG.ENDPOINT){
